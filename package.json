@@ -1,6 +1,6 @@
 {
   "name": "@zerotrue/mcp",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Official Model Context Protocol server for ZeroTrue AI content detection",
   "keywords": [
     "zerotrue",
@@ -34,7 +34,8 @@
     }
   },
   "bin": {
-    "zerotrue-mcp": "dist/index.js"
+    "zerotrue-mcp": "dist/index.js",
+    "mcp": "dist/index.js"
   },
   "files": [
     "dist",

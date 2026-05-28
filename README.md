@@ -1,234 +1,30 @@
 # ZeroTrue MCP Server
 
-Official Model Context Protocol server for the [ZeroTrue AI Detection API](https://api.zerotrue.app).
+[![npm version](https://img.shields.io/npm/v/%40zerotrue%2Fmcp?style=flat-square)](https://www.npmjs.com/package/@zerotrue/mcp)
+[![npm downloads](https://img.shields.io/npm/dm/%40zerotrue%2Fmcp?style=flat-square)](https://www.npmjs.com/package/@zerotrue/mcp)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](./LICENSE)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D20.11-brightgreen?style=flat-square)](https://nodejs.org)
 
-Use ZeroTrue from MCP-compatible agents to analyze text, URLs, and local files for AI-generated content, deepfakes, and synthetic media.
+Official [Model Context Protocol](https://modelcontextprotocol.io) server for the [ZeroTrue AI Detection API](https://zerotrue.app). Detect AI-generated text, images, video, and audio — directly from your AI agent or IDE.
 
-[![npm version](https://badge.fury.io/js/%40zerotrue%2Fmcp.svg)](https://www.npmjs.com/package/@zerotrue/mcp)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-
-## Features
-
-- Text, URL, and local file analysis
-- Local `stdio` transport for desktop/CLI agents
-- Streamable HTTP transport for remote deployments
-- Structured JSON tool responses
-- Local file upload without manual Base64 conversion
-- API-key based authentication
-- Works with Codex, Claude Desktop, GitHub Copilot CLI, VS Code MCP, JetBrains/IntelliJ-based clients, and other MCP clients
-
-## Requirements
-
-- Node.js `20.11+`
-- A ZeroTrue API key from your ZeroTrue dashboard
+---
 
 ## Quick Start
 
-Run the server locally over `stdio`:
+> Requires a ZeroTrue API key. Get one at [zerotrue.app](https://zerotrue.app).
 
 ```bash
-ZEROTRUE_API_KEY=zt_your_api_key_here npx -y @zerotrue/mcp stdio
+ZEROTRUE_API_KEY=zt_your_key npx -y @zerotrue/mcp stdio
 ```
 
-Run a remote-capable Streamable HTTP server:
+---
 
-```bash
-ZEROTRUE_API_KEY=zt_your_api_key_here npx -y @zerotrue/mcp http
-```
+## Install in VS Code
 
-The HTTP server listens on:
+[![Install in VS Code](https://img.shields.io/badge/VS_Code-Install_Server-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=zerotrue&inputs=%5B%7B%22id%22%3A%22zerotrue_api_key%22%2C%22type%22%3A%22promptString%22%2C%22description%22%3A%22ZeroTrue%20API%20key%22%2C%22password%22%3Atrue%7D%5D&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40zerotrue%2Fmcp%22%2C%22stdio%22%5D%2C%22env%22%3A%7B%22ZEROTRUE_API_KEY%22%3A%22%24%7Binput%3Azerotrue_api_key%7D%22%7D%7D)
+[![Install in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-Install_Server-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=zerotrue&inputs=%5B%7B%22id%22%3A%22zerotrue_api_key%22%2C%22type%22%3A%22promptString%22%2C%22description%22%3A%22ZeroTrue%20API%20key%22%2C%22password%22%3Atrue%7D%5D&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40zerotrue%2Fmcp%22%2C%22stdio%22%5D%2C%22env%22%3A%7B%22ZEROTRUE_API_KEY%22%3A%22%24%7Binput%3Azerotrue_api_key%7D%22%7D%7D&quality=insiders)
 
-```text
-http://0.0.0.0:8787/mcp
-```
-
-Health check:
-
-```bash
-curl http://127.0.0.1:8787/healthz
-```
-
-## Tools
-
-### `zerotrue_analyze_text`
-
-Analyze plain text.
-
-```json
-{
-  "text": "Text to analyze...",
-  "isPrivateScan": true,
-  "isDeepScan": false
-}
-```
-
-### `zerotrue_analyze_url`
-
-Analyze content from a direct HTTP(S) URL.
-
-```json
-{
-  "url": "https://example.com/image.png",
-  "isPrivateScan": true,
-  "isDeepScan": false
-}
-```
-
-### `zerotrue_analyze_local_file`
-
-Analyze a local file path readable by the MCP server process. This is the preferred file workflow for local MCP clients.
-
-```json
-{
-  "path": "/Users/alex/Downloads/image.png",
-  "isPrivateScan": true,
-  "isDeepScan": false
-}
-```
-
-The server checks that the file exists, is readable, is a regular non-empty file, fits within `ZEROTRUE_MAX_FILE_BYTES`, detects a MIME type from the extension, and sends multipart upload to ZeroTrue.
-
-### `zerotrue_analyze_file`
-
-Analyze a Base64-encoded file. Use this only when the MCP server cannot read local files directly.
-
-```json
-{
-  "filename": "image.png",
-  "mimeType": "image/png",
-  "base64": "iVBORw0KGgo..."
-}
-```
-
-### `zerotrue_get_result`
-
-Retrieve an existing analysis result.
-
-```json
-{
-  "id": "246c6522-195d-45d3-af96-0f2360d2e0bc"
-}
-```
-
-### `zerotrue_get_api_info`
-
-Return ZeroTrue public API metadata and supported formats.
-
-```json
-{}
-```
-
-## Response Shape
-
-Successful tools return structured JSON:
-
-```json
-{
-  "ok": true,
-  "data": {
-    "id": "246c6522-195d-45d3-af96-0f2360d2e0bc",
-    "status": "completed",
-    "error": null,
-    "result": {
-      "ai_probability": 0.998,
-      "human_probability": 0.002,
-      "result_type": "ai_generated",
-      "feedback": "High probability of AI generation detected"
-    }
-  }
-}
-```
-
-Errors keep the same envelope:
-
-```json
-{
-  "ok": false,
-  "error": {
-    "statusCode": 401,
-    "message": "ZeroTrue API key is required.",
-    "code": "ZEROTRUE_API_ERROR"
-  }
-}
-```
-
-## Configuration
-
-| Variable | Default | Description |
-| --- | --- | --- |
-| `ZEROTRUE_API_KEY` | required for analysis | ZeroTrue API key, usually `zt_...` |
-| `ZEROTRUE_API_BASE_URL` | `https://api.zerotrue.app` | ZeroTrue public API base URL |
-| `ZEROTRUE_API_TIMEOUT_MS` | `310000` | API request timeout |
-| `ZEROTRUE_MAX_FILE_BYTES` | `104857600` | Max local file size, default 100 MB |
-| `ZEROTRUE_MCP_TRANSPORT` | `stdio` | `stdio` or `http` |
-| `ZEROTRUE_MCP_HOST` | `0.0.0.0` | HTTP bind host |
-| `ZEROTRUE_MCP_PORT` | `8787` | HTTP bind port |
-| `ZEROTRUE_MCP_ENDPOINT` | `/mcp` | HTTP MCP endpoint |
-
-## Client Setup
-
-### Codex
-
-Add a local MCP server that launches `@zerotrue/mcp` over `stdio`.
-
-```toml
-[mcp_servers.zerotrue]
-command = "npx"
-args = ["-y", "@zerotrue/mcp", "stdio"]
-
-[mcp_servers.zerotrue.env]
-ZEROTRUE_API_KEY = "zt_your_api_key_here"
-ZEROTRUE_API_BASE_URL = "https://api.zerotrue.app"
-```
-
-Then ask:
-
-```text
-Check whether ./samples/image.png is AI-generated.
-```
-
-### Claude Desktop
-
-Add to `claude_desktop_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "zerotrue": {
-      "command": "npx",
-      "args": ["-y", "@zerotrue/mcp", "stdio"],
-      "env": {
-        "ZEROTRUE_API_KEY": "zt_your_api_key_here",
-        "ZEROTRUE_API_BASE_URL": "https://api.zerotrue.app"
-      }
-    }
-  }
-}
-```
-
-### GitHub Copilot CLI
-
-Add the server:
-
-```bash
-copilot mcp add zerotrue \
-  --transport stdio \
-  --env ZEROTRUE_API_KEY=zt_your_api_key_here \
-  --env ZEROTRUE_API_BASE_URL=https://api.zerotrue.app \
-  --tools '*' \
-  --timeout 310000 \
-  -- npx -y @zerotrue/mcp stdio
-```
-
-Verify:
-
-```bash
-copilot mcp list
-```
-
-### VS Code MCP
-
-Workspace `.vscode/mcp.json`:
+Or add manually to your workspace `.vscode/mcp.json`:
 
 ```json
 {
@@ -245,17 +41,97 @@ Workspace `.vscode/mcp.json`:
       "command": "npx",
       "args": ["-y", "@zerotrue/mcp", "stdio"],
       "env": {
-        "ZEROTRUE_API_KEY": "${input:zerotrue-api-key}",
-        "ZEROTRUE_API_BASE_URL": "https://api.zerotrue.app"
+        "ZEROTRUE_API_KEY": "${input:zerotrue-api-key}"
       }
     }
   }
 }
 ```
 
-### Cursor
+---
 
-Add to your Cursor MCP configuration:
+## Tools
+
+| Tool | Description |
+| --- | --- |
+| `zerotrue_analyze_text` | Detect AI-generated content in plain text |
+| `zerotrue_analyze_url` | Analyze media or text at a direct HTTP(S) URL |
+| `zerotrue_analyze_local_file` | Analyze a local file by path (preferred for desktop/CLI clients) |
+| `zerotrue_analyze_file` | Analyze a Base64-encoded file |
+| `zerotrue_get_result` | Retrieve a previous analysis result by ID |
+| `zerotrue_get_api_info` | Return API metadata and supported formats |
+
+All tools accept optional `isDeepScan` and `isPrivateScan` flags where applicable.
+
+### `zerotrue_analyze_local_file`
+
+The recommended tool for local MCP clients. Pass an absolute path — the server validates the file, detects its MIME type, and uploads it as a multipart form to ZeroTrue. No manual Base64 encoding needed.
+
+```json
+{ "path": "/Users/alex/Downloads/photo.png", "isPrivateScan": true }
+```
+
+### `zerotrue_analyze_text`
+
+```json
+{ "text": "Paste the content here...", "isDeepScan": false }
+```
+
+### `zerotrue_analyze_url`
+
+```json
+{ "url": "https://example.com/video.mp4", "isPrivateScan": true }
+```
+
+### `zerotrue_get_result`
+
+```json
+{ "id": "246c6522-195d-45d3-af96-0f2360d2e0bc" }
+```
+
+---
+
+## Response Format
+
+Every tool returns a consistent JSON envelope:
+
+```json
+{
+  "ok": true,
+  "data": {
+    "id": "246c6522-195d-45d3-af96-0f2360d2e0bc",
+    "status": "completed",
+    "result": {
+      "ai_probability": 0.998,
+      "human_probability": 0.002,
+      "result_type": "ai_generated",
+      "feedback": "High probability of AI generation detected"
+    }
+  }
+}
+```
+
+Errors use the same shape with `ok: false`:
+
+```json
+{
+  "ok": false,
+  "error": {
+    "statusCode": 401,
+    "message": "ZeroTrue API key is required.",
+    "code": "ZEROTRUE_API_ERROR"
+  }
+}
+```
+
+---
+
+## Client Setup
+
+<details>
+<summary><strong>Claude Desktop / Claude Code</strong></summary>
+
+Add to `claude_desktop_config.json`:
 
 ```json
 {
@@ -264,148 +140,175 @@ Add to your Cursor MCP configuration:
       "command": "npx",
       "args": ["-y", "@zerotrue/mcp", "stdio"],
       "env": {
-        "ZEROTRUE_API_KEY": "zt_your_api_key_here",
-        "ZEROTRUE_API_BASE_URL": "https://api.zerotrue.app"
+        "ZEROTRUE_API_KEY": "zt_your_key"
       }
     }
   }
 }
 ```
 
-### JetBrains / IntelliJ-based IDEs
+</details>
 
-Use the IDE MCP server settings and add a local `stdio` server:
-
-```text
-Name: zerotrue
-Command: npx
-Arguments: -y @zerotrue/mcp stdio
-Environment:
-  ZEROTRUE_API_KEY=zt_your_api_key_here
-  ZEROTRUE_API_BASE_URL=https://api.zerotrue.app
-```
-
-If your JetBrains MCP integration expects JSON, use:
-
-```json
-{
-  "mcpServers": {
-    "zerotrue": {
-      "command": "npx",
-      "args": ["-y", "@zerotrue/mcp", "stdio"],
-      "env": {
-        "ZEROTRUE_API_KEY": "zt_your_api_key_here",
-        "ZEROTRUE_API_BASE_URL": "https://api.zerotrue.app"
-      }
-    }
-  }
-}
-```
-
-### Remote Streamable HTTP
-
-Run the server:
+<details>
+<summary><strong>GitHub Copilot CLI</strong></summary>
 
 ```bash
-ZEROTRUE_API_KEY=zt_your_api_key_here \
-ZEROTRUE_MCP_HOST=0.0.0.0 \
+copilot mcp add zerotrue \
+  --transport stdio \
+  --env ZEROTRUE_API_KEY=zt_your_key \
+  --tools '*' \
+  --timeout 310000 \
+  -- npx -y @zerotrue/mcp stdio
+```
+
+</details>
+
+<details>
+<summary><strong>Cursor</strong></summary>
+
+Add to your Cursor MCP settings:
+
+```json
+{
+  "mcpServers": {
+    "zerotrue": {
+      "command": "npx",
+      "args": ["-y", "@zerotrue/mcp", "stdio"],
+      "env": {
+        "ZEROTRUE_API_KEY": "zt_your_key"
+      }
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><strong>Codex</strong></summary>
+
+```toml
+[mcp_servers.zerotrue]
+command = "npx"
+args = ["-y", "@zerotrue/mcp", "stdio"]
+
+[mcp_servers.zerotrue.env]
+ZEROTRUE_API_KEY = "zt_your_key"
+```
+
+</details>
+
+<details>
+<summary><strong>JetBrains / IntelliJ</strong></summary>
+
+Use the IDE MCP settings panel with a local `stdio` server:
+
+```json
+{
+  "mcpServers": {
+    "zerotrue": {
+      "command": "npx",
+      "args": ["-y", "@zerotrue/mcp", "stdio"],
+      "env": {
+        "ZEROTRUE_API_KEY": "zt_your_key"
+      }
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><strong>Remote / self-hosted (Streamable HTTP)</strong></summary>
+
+Run the HTTP server:
+
+```bash
+ZEROTRUE_API_KEY=zt_your_key \
 ZEROTRUE_MCP_PORT=8787 \
 npx -y @zerotrue/mcp http
 ```
 
-Connect MCP clients to:
+Or with Docker:
 
-```text
-http://localhost:8787/mcp
+```bash
+docker run -p 8787:8787 \
+  -e ZEROTRUE_API_KEY=zt_your_key \
+  zerotrue/mcp
 ```
 
-For production, put the server behind HTTPS and normal access controls.
+MCP endpoint: `http://localhost:8787/mcp`
+Health check: `http://localhost:8787/healthz`
+
+Point your MCP client to the endpoint above. For production, place the server behind HTTPS and add authentication.
+
+</details>
+
+---
+
+## Configuration
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `ZEROTRUE_API_KEY` | — | ZeroTrue API key (`zt_...`). Required for all analysis tools. |
+| `ZEROTRUE_API_BASE_URL` | `https://api.zerotrue.app` | ZeroTrue API base URL |
+| `ZEROTRUE_API_TIMEOUT_MS` | `310000` | Request timeout in milliseconds |
+| `ZEROTRUE_MAX_FILE_BYTES` | `104857600` | Max local file size (default 100 MB) |
+| `ZEROTRUE_MCP_TRANSPORT` | `stdio` | Transport mode: `stdio` or `http` |
+| `ZEROTRUE_MCP_HOST` | `0.0.0.0` | HTTP bind host |
+| `ZEROTRUE_MCP_PORT` | `8787` | HTTP bind port |
+| `ZEROTRUE_MCP_ENDPOINT` | `/mcp` | HTTP MCP path |
+
+---
 
 ## Example Prompts
 
-```text
-Check whether this text was written by AI:
-"..."
+```
+Is this text AI-generated? "The quantum entanglement of..."
 ```
 
-```text
-Analyze https://example.com/image.png with ZeroTrue and summarize the evidence.
+```
+Analyze https://example.com/profile.jpg with ZeroTrue and summarize the result.
 ```
 
-```text
-Use ZeroTrue to check /Users/alex/Downloads/video.mp4. Keep the scan private.
+```
+Use ZeroTrue to check /Downloads/video.mp4. Keep the scan private.
 ```
 
-```text
-Retrieve ZeroTrue result 246c6522-195d-45d3-af96-0f2360d2e0bc and explain the verdict.
+```
+Get ZeroTrue result 246c6522-195d-45d3-af96-0f2360d2e0bc and explain the verdict.
 ```
 
-## Security Notes
+---
 
-- Keep `ZEROTRUE_API_KEY` out of source control.
-- Prefer local `stdio` mode for personal agent clients. Your key stays in your local MCP client configuration.
-- `zerotrue_analyze_local_file` can only read files accessible to the MCP server process.
-- For hosted HTTP deployments, do not expose the MCP endpoint publicly without authentication and rate limiting.
-- Tune `ZEROTRUE_MAX_FILE_BYTES` for your environment.
+## Security
+
+- Store `ZEROTRUE_API_KEY` in your MCP client config, never in source control.
+- Prefer `stdio` mode for personal use — your key never leaves your machine.
+- `zerotrue_analyze_local_file` can only access files readable by the MCP server process.
+- For HTTP deployments, do not expose the `/mcp` endpoint publicly without authentication and rate limiting.
+
+---
 
 ## Troubleshooting
 
-### `ZeroTrue API key is required`
+**`ZeroTrue API key is required`** — Set `ZEROTRUE_API_KEY` in the environment where the MCP server starts.
 
-Set `ZEROTRUE_API_KEY` in the MCP server environment.
+**`File is not readable or does not exist`** — Use an absolute path and confirm the MCP server process has read access.
 
-### `File is not readable or does not exist`
+**`fetch failed`** — Check connectivity: `curl https://api.zerotrue.app/api/v1/info`. If `details.cause.code` is present, use it to diagnose DNS, TLS, or proxy issues.
 
-Use an absolute path or ensure the MCP server process has permission to read the file.
+**Stale tool behavior after an update** — Restart the MCP client. Most clients keep MCP subprocesses alive between tool calls.
 
-### `fetch failed`
+---
 
-Check connectivity:
+## Requirements
 
-```bash
-curl https://api.zerotrue.app/api/v1/info
-```
+- Node.js `>= 20.11`
 
-If the error includes `details.cause.code`, use it to diagnose DNS, TLS, proxy, or network failures.
-
-### Old tool behavior after an update
-
-Restart the MCP client. Many clients keep MCP subprocesses alive between tool calls.
-
-## Development
-
-```bash
-pnpm install
-pnpm run typecheck
-pnpm run test
-pnpm run build
-pnpm run dev:stdio
-pnpm run dev:http
-```
-
-## Publishing
-
-The package is published to npm as `@zerotrue/mcp`.
-
-Manual release:
-
-```bash
-pnpm version patch
-git push --follow-tags
-```
-
-GitHub Actions publishes tags matching:
-
-```text
-v*.*.*
-```
-
-Required repository secret:
-
-```text
-NPM_TOKEN
-```
+---
 
 ## License
 
-MIT
+[MIT](./LICENSE)

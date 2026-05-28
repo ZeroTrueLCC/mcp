@@ -1,0 +1,25 @@
+# Source and tests
+src/
+tests/
+
+# Config
+tsconfig.json
+vitest.config.ts
+pnpm-workspace.yaml
+
+# CI/CD
+.github/
+
+# Development files
+.env
+coverage/
+node_modules/
+
+# IDE
+.vscode/
+.idea/
+
+# Misc
+.git/
+.gitignore
+Dockerfile

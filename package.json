@@ -1,0 +1,74 @@
+{
+  "name": "@zerotrue/mcp",
+  "version": "0.1.0",
+  "description": "Official Model Context Protocol server for ZeroTrue AI content detection",
+  "keywords": [
+    "zerotrue",
+    "mcp",
+    "model-context-protocol",
+    "ai-detection",
+    "deepfake",
+    "ai",
+    "detection",
+    "claude",
+    "codex",
+    "copilot"
+  ],
+  "author": "ZeroTrue Team",
+  "license": "MIT",
+  "homepage": "https://github.com/ZeroTrueLCC/mcp#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZeroTrueLCC/mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ZeroTrueLCC/mcp/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "zerotrue-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    ".env.example"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev:stdio": "tsx src/index.ts stdio",
+    "dev:http": "tsx src/index.ts http",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "prepublishOnly": "pnpm run build && pnpm run test",
+    "release:patch": "pnpm version patch && pnpm publish --access public",
+    "release:minor": "pnpm version minor && pnpm publish --access public",
+    "release:major": "pnpm version major && pnpm publish --access public"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.21.0",
+    "express": "^5.1.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^22.10.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=20.11"
+  }
+}

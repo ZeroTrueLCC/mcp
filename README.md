@@ -1,7 +1,6 @@
 # ZeroTrue MCP Server
 
 [![npm version](https://img.shields.io/npm/v/%40zerotrue%2Fmcp?style=flat-square)](https://www.npmjs.com/package/@zerotrue/mcp)
-[![npm downloads](https://img.shields.io/npm/dm/%40zerotrue%2Fmcp?style=flat-square)](https://www.npmjs.com/package/@zerotrue/mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](./LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20.11-brightgreen?style=flat-square)](https://nodejs.org)
 
